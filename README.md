@@ -1,4 +1,4 @@
-social-comments-for-wordpress
+tweets-as-comments
 =============================
 
-Social Comments For Wordpress (starting with Twitter)
+Enters Twitter mentions of posts as comments.

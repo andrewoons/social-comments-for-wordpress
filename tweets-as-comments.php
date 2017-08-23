@@ -40,6 +40,16 @@ if ( !class_exists( 'Tweets_As_Comments' ) ) {
 		}
 
 		/**
+		Function that registers the action links
+		**/
+		public static function action_links( $links ) {
+			$settings = '<a href="options-general.php?page=tweets-as-comments">' . __( 'Settings' ) . '</a>';
+			$setup = '<a href="https://tweetsascomments.com/setup-instructions/">' . __( 'Setup Instructions' ) . '</a>';
+    		array_push( $links, $settings, $setup );
+    		return $links;
+		}
+
+		/**
 		Function to unregister the cron job when we deactivate the plugin
 		*/
 		public static function deactivate() {
@@ -77,7 +87,7 @@ if ( !class_exists( 'Tweets_As_Comments' ) ) {
 		public static function check_tweets() {
 			global $wpdb;
 			$secure = "";
-			// wp_mail( "andre.woons@gmail.com", "tac ran", "plugin ran at ". date("Y-m-d H:i:s") ."", "", ""); 
+			
 			$settings = get_option( 'tac' );
 			if ( empty( $settings[ 'consumerkey' ] ) || empty( $settings[ 'consumersecret' ] ) || empty( $settings[ 'oauthtoken' ] ) || empty( $settings[ 'oauthsecret' ] ) ) {
 				return;
@@ -116,7 +126,7 @@ if ( !class_exists( 'Tweets_As_Comments' ) ) {
 					$parameters = array(
 						'q'					=> $permalink,
 						'count'				=> $maxtweets,
-						'exclude_replies' 	=> $excludereplies,
+						'exclude_replies'	=> $excludereplies,
 						'since_id'			=> $last_checked_id
 					);
 				}
@@ -198,7 +208,7 @@ if ( !class_exists( 'Tweets_As_Comments' ) ) {
 						// add_comment_meta( $comment_id, 'tac_url', $imageSavedUrl, false );
 						update_post_meta( $post_id, 'tac_last_id', $maxid );
 					}
-				}
+			 	}
 
 			endwhile;
 
@@ -217,6 +227,9 @@ register_deactivation_hook( __FILE__ , array ( 'Tweets_As_Comments', 'deactivate
 
 /* Register Settings page */
 add_action( 'admin_menu' , array ( 'Tweets_As_Comments', 'register_settings_page' ) );
+
+/* Register info links */
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ) , array ( 'Tweets_As_Comments', 'action_links' ) );
 
 /* Register shortcode for manual retrieval of tweets */
 add_shortcode( 'tweets_as_comments' , array ( 'Tweets_As_Comments' , 'check_tweets' ) );

@@ -1,3 +1,9 @@
+<?php
+require ("twitteroauth/autoload.php");
+use Abraham\TwitterOAuth\TwitterOAuth;
+
+?>
+
 <div class="wrap">
 	<?php 
 
@@ -27,7 +33,24 @@
 		];
 
 		update_option( 'tac' , $optionsArr );
-		echo "<strong>Updated settings.</strong><br />";
+		echo "<h4 style='color: green;'>Updated settings.</h4>";
+	} else if( isset( $_POST[ 'new_auth' ] ) && $_POST[ 'new_auth' ] == "A" )
+	{
+		$settings = get_option( 'tac' );
+		if ( empty( $settings[ 'consumerkey' ] ) || empty( $settings[ 'consumersecret' ] ) || empty( $settings[ 'oauthtoken' ] ) || empty( $settings[ 'oauthsecret' ] ) ) {
+			echo "<h4 style='color: red;'>Please enter all details first.</h4>";
+		}
+
+		/* Initiate Twitter by authenticating */
+		$twitter = new TwitterOAuth( $settings[ 'consumerkey' ], $settings[ 'consumersecret' ], $settings[ 'oauthtoken' ], $settings[ 'oauthsecret' ] );
+
+		$response = $twitter->get('account/verify_credentials');
+
+		if ($response->errors) {
+			echo "<h4 style='color: red;'>Authentication failed.</h4>";
+		} else {
+			echo "<h4 style='color: green;'>Authentication succesfull!</h4>";
+		}
 	}
 
 	$settings = get_option( 'tac' );
@@ -35,7 +58,7 @@
 	<form name="settings" method="post" action="">
 		<input type="hidden" name="new_hidden" value="Y">
 
-		<?php _e("<p>Twitter Consumer Key </p>" ); ?>
+		<?php _e("<p>Twitter Consumer Key (<a href='https://tweetsascomments.com/setup-instructions/' target='_blank'>Setup Instructions</a>)</p>" ); ?>
 		<input type="text" style="font-size: 20px;" value="<? echo $settings[ 'consumerkey' ]; ?>" name="consumerkey" size="50" required>
 
 	 	<?php _e("<p>Twitter Consumer Secret </p>" ); ?>
@@ -74,5 +97,13 @@
 	    <p class="submit">
 			<input class="button-primary" type="submit" name="Submit" value="<?php _e('Save', 'tac_text' ) ?>" />
 		</p>
+	</form>
+
+	<form name="auth" method="post" action ="">
+	<input type="hidden" name="new_auth" value="A">
+
+	<p class="submit">
+		<input class="button-primary" type="submit" name="Auth" value="<?php _e('Test Authentication', 'tac_text' ) ?>" />
+	</p>
 	</form>
 </div>
